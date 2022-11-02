@@ -1,4 +1,4 @@
-import * as url_helpers from '../../src/helpers/url-helpers';
+import * as url_helpers from '@common/helpers/url-helpers';
 
 describe('url_helpers', () => {
   describe('isValidExternalURL', () => {

@@ -1,0 +1,69 @@
+@import "./type-helper";
+
+$raw-theme-brand-primary: '114,102,240';
+$raw-theme-brand-success: '92,184,92';
+$raw-theme-brand-info: '91,192,222';
+$raw-theme-brand-warning: '255,159,0';
+$raw-theme-brand-danger: '217,83,79';
+
+$raw-theme-gray-dark: '55,58,60';
+$raw-theme-gray: '85,89,92';
+$raw-theme-gray-light: '129,138,145';
+$raw-theme-gray-lighter: '236,238,239';
+$raw-theme-gray-lightest: '247,247,249';
+$raw-theme-border-radius: '6px';
+$raw-theme-border-radius-small: '3px';
+$raw-theme-sidebar-width: '68px';
+$raw-theme-text-color: '55,58,60';
+$raw-theme-transition-time: '.5s';
+$raw-theme-inset-shadow: 'inset 0 2px 5px rgba(0, 0, 0, .03)';
+$raw-dark-theme-black: '26,26,26';
+$raw-dark-theme-gray-darkest: '30,30,30';
+$raw-dark-theme-gray-darker: '45,47,49';
+$raw-dark-theme-gray-dark: '56,58,59';
+$raw-dark-theme-gray: '71,73,75';
+$raw-dark-theme-gray-light: '81,83,85';
+$raw-dark-theme-gray-lighter: '138,139,139';
+$raw-dark-theme-gray-lightest: '255,255,255';
+$raw-dark-theme-gray-smoke: '206,208,209';
+$raw-dark-theme-text-color: '255,255,255';
+
+$theme-brand-primary:        convert-rgb-string-to-color($raw-theme-brand-primary);
+$theme-brand-gradient:       $theme-brand-primary;
+$theme-brand-success:        convert-rgb-string-to-color($raw-theme-brand-success);
+$theme-brand-info:           convert-rgb-string-to-color($raw-theme-brand-info);
+$theme-brand-warning:        convert-rgb-string-to-color($raw-theme-brand-warning);
+$theme-brand-danger:         convert-rgb-string-to-color($raw-theme-brand-danger);
+
+$theme-gray-dark:            convert-rgb-string-to-color($raw-theme-gray-dark);
+$theme-gray:                 convert-rgb-string-to-color($raw-theme-gray);
+$theme-gray-light:           convert-rgb-string-to-color($raw-theme-gray-light);
+$theme-gray-lighter:         convert-rgb-string-to-color($raw-theme-gray-lighter);
+$theme-gray-lightest:        convert-rgb-string-to-color($raw-theme-gray-lightest);
+
+$theme-border-radius:        to-number($raw-theme-border-radius);
+$theme-border-radius-small:  to-number($raw-theme-border-radius-small);
+
+$theme-sidebar-width:        to-number($raw-theme-sidebar-width);
+
+$theme-text-color:           convert-rgb-string-to-color($raw-theme-gray-dark);
+
+$theme-transition-time:      .5s;
+
+$theme-inset-shadow:         inset 0 2px 5px rgba(0, 0, 0, .03);
+
+// Dark Theme
+$dark-theme-black:           convert-rgb-string-to-color($raw-dark-theme-black);
+
+$dark-theme-gray-darkest:    convert-rgb-string-to-color($raw-dark-theme-gray-darkest);
+$dark-theme-gray-darker:     convert-rgb-string-to-color($raw-dark-theme-gray-darker);
+$dark-theme-gray-dark:       convert-rgb-string-to-color($raw-dark-theme-gray-dark);
+
+$dark-theme-gray:            convert-rgb-string-to-color($raw-dark-theme-gray);
+
+$dark-theme-gray-light:      convert-rgb-string-to-color($raw-dark-theme-gray-light);
+$dark-theme-gray-lighter:    convert-rgb-string-to-color($raw-dark-theme-gray-lighter);
+$dark-theme-gray-lightest:   convert-rgb-string-to-color($raw-dark-theme-gray-lightest);
+
+$dark-theme-gray-smoke:      convert-rgb-string-to-color($raw-dark-theme-gray-smoke);
+$dark-theme-text-color:      convert-rgb-string-to-color($raw-dark-theme-text-color);

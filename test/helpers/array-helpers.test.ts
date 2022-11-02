@@ -1,4 +1,4 @@
-import shuffleArray from '../../src/helpers/array-helpers';
+import shuffleArray from '@renderer/helpers/array-helpers';
 
 describe('array_helpers', () => {
   it('isValidExternalURL', () => {

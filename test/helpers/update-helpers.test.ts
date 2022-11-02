@@ -1,4 +1,4 @@
-import * as update_helpers from '../../src/helpers/update-helpers';
+import * as update_helpers from '@renderer/helpers/update-helpers';
 
 describe('getFerdiumVersion', () => {
   const baseVersion = '6.0.0-nightly.3';

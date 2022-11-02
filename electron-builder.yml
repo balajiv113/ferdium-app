@@ -1,7 +1,7 @@
 directories:
-  app: ./build
   output: ./out
-
+files:
+  - "build"
 appId: "org.ferdium.ferdium-app"
 
 publish:

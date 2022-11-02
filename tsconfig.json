@@ -44,11 +44,23 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
     "useDefineForClassFields": true,
+    "paths": {
+      "@common/*": [
+        "src/common/*"
+      ],
+      "@base/*": [
+        "src/base/*"
+      ],
+      "@renderer/*": [
+        "src/renderer/*"
+      ]
+    }
   },
   "include": [
     "src",
     "scripts",
     "test",
     "gulpfile.babel.ts",
+    "vite.config.ts",
   ],
 }

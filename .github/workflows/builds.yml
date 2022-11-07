@@ -354,13 +354,13 @@ jobs:
         working-directory: ./recipes
         shell: bash
       - name: Run linter and tests
-        run: pnpm lint && pnpm test && pnpm build:windows
+        run: pnpm lint && pnpm test
         shell: bash
       - name: Build Ferdium without publish for any branch not 'nightly' and not 'release'
         if: ${{ env.GIT_BRANCH_NAME != 'nightly' && env.GIT_BRANCH_NAME != 'release' }}
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: pnpm electron-builder --publish never
+        run: pnpm build --publish never
         shell: bash
       - name: "Build Ferdium with publish for '${{ env.GIT_BRANCH_NAME }}' branch"
         if: ${{ env.GIT_BRANCH_NAME == 'nightly' || env.GIT_BRANCH_NAME == 'release' }}
@@ -369,5 +369,5 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: true
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-        run: pnpm electron-builder --publish always
+        run: pnpm build --publish always
         shell: bash

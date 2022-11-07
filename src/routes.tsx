@@ -27,16 +27,20 @@ import PasswordScreen from './containers/auth/PasswordScreen';
 import ChangeServerScreen from './containers/auth/ChangeServerScreen';
 import SignupScreen from './containers/auth/SignupScreen';
 import ImportScreen from './containers/auth/ImportScreen';
-import SetupAssistentScreen from './containers/auth/SetupAssistantScreen';
+import SetupAssistantScreen from './containers/auth/SetupAssistantScreen';
 import InviteScreen from './containers/auth/InviteScreen';
 import AuthLayoutContainer from './containers/auth/AuthLayoutContainer';
 import WorkspacesScreen from './features/workspaces/containers/WorkspacesScreen';
 import EditWorkspaceScreen from './features/workspaces/containers/EditWorkspaceScreen';
 import { WORKSPACES_ROUTES } from './features/workspaces/constants';
 import { StoresProps } from './@types/ferdium-components.types';
+import { Actions } from './actions/lib/actions';
+import { RealStores } from './stores';
 
-interface IProps extends StoresProps {
+interface IProps {
   history: HashHistory;
+  actions?: Actions;
+  stores?: RealStores;
 }
 
 @inject('stores', 'actions')
@@ -44,8 +48,8 @@ interface IProps extends StoresProps {
 class FerdiumRoutes extends Component<IProps> {
   render(): ReactElement {
     const { history, stores, actions } = this.props;
-    const routeProps: StoresProps = { stores, actions };
-    const errorProps = { error: this.props.stores.globalError.error || {} };
+    const routeProps: StoresProps = { stores: stores!, actions: actions! };
+    const errorProps = { error: routeProps.stores.globalError.error || {} };
 
     return (
       <HistoryRouter history={history}>
@@ -82,7 +86,7 @@ class FerdiumRoutes extends Component<IProps> {
               />
               <Route
                 path="/auth/signup/setup"
-                element={<SetupAssistentScreen {...routeProps} />}
+                element={<SetupAssistantScreen {...routeProps} />}
               />
               <Route
                 path="/auth/signup/invite"
@@ -129,6 +133,7 @@ class FerdiumRoutes extends Component<IProps> {
               />
               <Route
                 path="/settings/services"
+                /* @ts-ignore */
                 element={<ServicesScreen {...this.props} />}
               />
               <Route
@@ -137,30 +142,37 @@ class FerdiumRoutes extends Component<IProps> {
               />
               <Route
                 path={WORKSPACES_ROUTES.ROOT}
+                /* @ts-ignore */
                 element={<WorkspacesScreen {...this.props} />}
               />
               <Route
                 path={WORKSPACES_ROUTES.EDIT}
+                /* @ts-ignore */
                 element={<EditWorkspaceScreen {...this.props} />}
               />
               <Route
                 path="/settings/user"
+                /* @ts-ignore */
                 element={<AccountScreen {...this.props} />}
               />
               <Route
                 path="/settings/user/edit"
+                /* @ts-ignore */
                 element={<EditUserScreen {...this.props} />}
               />
               <Route
                 path="/settings/team"
+                /* @ts-ignore */
                 element={<TeamScreen {...this.props} />}
               />
               <Route
                 path="/settings/app"
+                /* @ts-ignore */
                 element={<EditSettingsScreen {...this.props} />}
               />
               <Route
                 path="/settings/invite"
+                /* @ts-ignore */
                 element={<InviteSettingsScreen {...this.props} />}
               />
               <Route

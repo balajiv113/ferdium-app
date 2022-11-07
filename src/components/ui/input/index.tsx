@@ -1,9 +1,18 @@
 import { mdiEye, mdiEyeOff } from '@mdi/js';
-import Icon from '@mdi/react';
 import classnames from 'classnames';
-import { Component, createRef, InputHTMLAttributes } from 'react';
-import injectSheet, { WithStylesProps } from 'react-jss';
+import {
+  Component,
+  createRef,
+  InputHTMLAttributes,
+  ReactElement,
+  RefObject,
+  KeyboardEvent,
+} from 'react';
+import withStyles, { WithStylesProps } from 'react-jss';
 import { noop } from 'lodash';
+import { observer } from 'mobx-react';
+import { defineMessages, injectIntl, WrappedComponentProps } from 'react-intl';
+import Icon from '../icon';
 import { IFormField } from '../typings/generic';
 import Error from '../error';
 import Label from '../label';
@@ -11,6 +20,12 @@ import Wrapper from '../wrapper';
 import { scorePasswordFunc } from './scorePassword';
 import styles from './styles';
 
+const messages = defineMessages({
+  passwordToggle: {
+    id: 'settings.app.form.passwordToggle',
+    defaultMessage: 'Password toggle',
+  },
+});
 interface IData {
   [index: string]: string;
 }
@@ -18,7 +33,8 @@ interface IData {
 interface IProps
   extends InputHTMLAttributes<HTMLInputElement>,
     IFormField,
-    WithStylesProps<typeof styles> {
+    WithStylesProps<typeof styles>,
+    WrappedComponentProps {
   focus?: boolean;
   prefix?: string;
   suffix?: string;
@@ -26,7 +42,7 @@ interface IProps
   showPasswordToggle?: boolean;
   data?: IData;
   inputClassName?: string;
-  onEnterKey?: Function;
+  onEnterKey?: () => {};
 }
 
 interface IState {
@@ -34,8 +50,10 @@ interface IState {
   passwordScore: number;
 }
 
-class InputComponent extends Component<IProps, IState> {
-  private inputRef = createRef<HTMLInputElement>();
+@observer
+class Input extends Component<IProps, IState> {
+  private inputElement: RefObject<HTMLInputElement> =
+    createRef<HTMLInputElement>();
 
   constructor(props: IProps) {
     super(props);
@@ -47,40 +65,39 @@ class InputComponent extends Component<IProps, IState> {
   }
 
   componentDidMount(): void {
-    const { focus, data = {} } = this.props;
+    const { focus = false, data = {} } = this.props;
 
-    if (this.inputRef && this.inputRef.current) {
+    if (this.inputElement && this.inputElement.current) {
       if (focus) {
-        this.inputRef.current.focus();
+        this.inputElement.current.focus();
       }
 
-      for (const key of Object.keys(data))
-        this.inputRef.current!.dataset[key] = data[key];
+      for (const key of Object.keys(data)) {
+        this.inputElement.current.dataset[key] = data[key];
+      }
     }
   }
 
   onChange(e: React.ChangeEvent<HTMLInputElement>): void {
-    const { scorePassword, onChange } = this.props;
+    const { scorePassword, onChange = noop } = this.props;
 
-    if (onChange) {
-      onChange(e);
-    }
+    onChange(e);
 
-    if (this.inputRef && this.inputRef.current && scorePassword) {
+    if (scorePassword) {
       this.setState({
-        passwordScore: scorePasswordFunc(this.inputRef.current.value),
+        passwordScore: scorePasswordFunc(e.target.value),
       });
     }
   }
 
-  onInputKeyPress(e: React.KeyboardEvent) {
+  onInputKeyPress(e: KeyboardEvent<HTMLInputElement>): void {
     if (e.key === 'Enter') {
-      const { onEnterKey } = this.props;
-      onEnterKey && onEnterKey();
+      const { onEnterKey = noop } = this.props;
+      onEnterKey();
     }
   }
 
-  render() {
+  render(): ReactElement {
     const {
       classes,
       className,
@@ -107,10 +124,9 @@ class InputComponent extends Component<IProps, IState> {
       type = 'text',
       disabled = false,
       readOnly,
+      intl,
     } = this.props;
-
     const { showPassword, passwordScore } = this.state;
-
     const inputType = type === 'password' && showPassword ? 'text' : type;
 
     return (
@@ -119,79 +135,85 @@ class InputComponent extends Component<IProps, IState> {
         identifier="franz-input"
         noMargin={noMargin}
       >
-        <Label
-          title={label}
-          showLabel={showLabel}
-          htmlFor={id}
-          className={classes.label}
-          isRequired={required}
+        {label && showLabel && (
+          <Label
+            title={label}
+            showLabel={showLabel}
+            htmlFor={id}
+            className={classes.label}
+            isRequired={required}
+          />
+        )}
+        <div
+          className={classnames({
+            [`${inputClassName}`]: inputClassName,
+            // [`${classes.hasPasswordScore}`]: scorePassword,
+            [`${classes.wrapper}`]: true,
+            [`${classes.disabled}`]: disabled,
+            [`${classes.hasError}`]: error,
+          })}
         >
+          {prefix && <span className={classes.prefix}>{prefix}</span>}
+          <input
+            id={id}
+            type={inputType}
+            name={name}
+            value={value as string}
+            placeholder={placeholder}
+            spellCheck={spellCheck}
+            className={classes.input}
+            ref={this.inputElement}
+            onChange={this.onChange.bind(this)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            disabled={disabled}
+            onKeyPress={this.onInputKeyPress.bind(this)}
+            min={min}
+            max={max}
+            step={step}
+            readOnly={readOnly}
+          />
+
+          {suffix && <span className={classes.suffix}>{suffix}</span>}
+
+          {showPasswordToggle && (
+            <button
+              type="button"
+              className={classnames({
+                'franz-form__input-modifier': true,
+              })}
+              onClick={() =>
+                this.setState(prevState => ({
+                  showPassword: !prevState.showPassword,
+                }))
+              }
+              tabIndex={-1}
+              aria-label={intl.formatMessage(messages.passwordToggle)}
+            >
+              <Icon icon={this.state.showPassword ? mdiEye : mdiEyeOff} />
+            </button>
+          )}
+        </div>
+        {scorePassword && (
           <div
             className={classnames({
-              [`${inputClassName}`]: inputClassName,
-              [`${classes.hasPasswordScore}`]: scorePassword,
-              [`${classes.wrapper}`]: true,
-              [`${classes.disabled}`]: disabled,
+              [`${classes.passwordScore}`]: true,
               [`${classes.hasError}`]: error,
             })}
           >
-            {prefix && <span className={classes.prefix}>{prefix}</span>}
-            <input
-              id={id}
-              type={inputType}
-              name={name}
-              value={value as string}
-              placeholder={placeholder}
-              spellCheck={spellCheck}
-              className={classes.input}
-              ref={this.inputRef}
-              onChange={this.onChange.bind(this)}
-              onFocus={onFocus}
-              onBlur={onBlur}
-              disabled={disabled}
-              onKeyPress={this.onInputKeyPress.bind(this)}
-              min={min}
-              max={max}
-              step={step}
-              readOnly={readOnly}
+            <meter
+              value={passwordScore < 5 ? 5 : passwordScore}
+              low={30}
+              high={75}
+              optimum={100}
+              max={100}
             />
-            {suffix && <span className={classes.suffix}>{suffix}</span>}
-            {showPasswordToggle && (
-              <button
-                type="button"
-                className={classes.formModifier}
-                onClick={() =>
-                  this.setState(prevState => ({
-                    showPassword: !prevState.showPassword,
-                  }))
-                }
-                tabIndex={-1}
-              >
-                <Icon path={!showPassword ? mdiEye : mdiEyeOff} />
-              </button>
-            )}
           </div>
-          {scorePassword && (
-            <div
-              className={classnames({
-                [`${classes.passwordScore}`]: true,
-                [`${classes.hasError}`]: error,
-              })}
-            >
-              <meter
-                value={passwordScore < 5 ? 5 : passwordScore}
-                low={30}
-                high={75}
-                optimum={100}
-                max={100}
-              />
-            </div>
-          )}
-        </Label>
+        )}
         {error && <Error message={error} />}
       </Wrapper>
     );
   }
 }
 
-export default injectSheet(styles, { injectTheme: true })(InputComponent);
+export default injectIntl(withStyles(styles, { injectTheme: true })(Input));

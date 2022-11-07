@@ -1,22 +1,19 @@
-/* eslint jsx-a11y/anchor-is-valid: 0 */
-import { Component } from 'react';
-import PropTypes from 'prop-types';
-import { observer, inject } from 'mobx-react';
-import { defineMessages, injectIntl } from 'react-intl';
-
+import { Component, FormEvent, ReactElement } from 'react';
+import { observer } from 'mobx-react';
+import { defineMessages, injectIntl, WrappedComponentProps } from 'react-intl';
 import { mdiArrowLeftCircle } from '@mdi/js';
+import { noop } from 'lodash';
 import Icon from '../ui/icon';
 import { LIVE_FRANZ_API } from '../../config';
 import { API_VERSION } from '../../environment-remote';
 import { serverBase } from '../../api/apiBase'; // TODO: Remove this line after fixing password recovery in-app
 import Form from '../../lib/Form';
 import { required, email } from '../../helpers/validation-helpers';
-import Input from '../ui/Input';
+import Input from '../ui/input/index';
 import Button from '../ui/button';
 import Link from '../ui/Link';
-
-import { globalError as globalErrorPropType } from '../../prop-types';
 import { H1 } from '../ui/headline';
+import { GlobalError } from '../../@types/ferdium-components.types';
 
 const messages = defineMessages({
   headline: {
@@ -65,40 +62,42 @@ const messages = defineMessages({
   },
 });
 
-class Login extends Component {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    isSubmitting: PropTypes.bool.isRequired,
-    isTokenExpired: PropTypes.bool.isRequired,
-    isServerLogout: PropTypes.bool.isRequired,
-    signupRoute: PropTypes.string.isRequired,
-    // passwordRoute: PropTypes.string.isRequired, // TODO: Uncomment this line after fixing password recovery in-app
-    error: globalErrorPropType.isRequired,
-  };
+interface IProps extends WrappedComponentProps {
+  onSubmit: (...args: any[]) => void;
+  isSubmitting: boolean;
+  isTokenExpired: boolean;
+  isServerLogout: boolean;
+  signupRoute: string;
+  // eslint-disable-next-line react/no-unused-prop-types
+  passwordRoute: string; // TODO: Uncomment this line after fixing password recovery in-app
+  error: GlobalError;
+}
 
-  form = (() => {
-    const { intl } = this.props;
-    return new Form(
-      {
-        fields: {
-          email: {
-            label: intl.formatMessage(messages.emailLabel),
-            value: '',
-            validators: [required, email],
-          },
-          password: {
-            label: intl.formatMessage(messages.passwordLabel),
-            value: '',
-            validators: [required],
-            type: 'password',
-          },
+@observer
+class Login extends Component<IProps> {
+  form: Form;
+
+  constructor(props: IProps) {
+    super(props);
+
+    this.form = new Form({
+      fields: {
+        email: {
+          label: this.props.intl.formatMessage(messages.emailLabel),
+          value: '',
+          validators: [required, email],
+        },
+        password: {
+          label: this.props.intl.formatMessage(messages.passwordLabel),
+          value: '',
+          validators: [required],
+          type: 'password',
         },
       },
-      intl,
-    );
-  })();
+    });
+  }
 
-  submit(e) {
+  submit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     this.form.submit({
       onSuccess: form => {
@@ -108,16 +107,16 @@ class Login extends Component {
     });
   }
 
-  render() {
+  render(): ReactElement {
     const { form } = this;
-    const { intl } = this.props;
     const {
       isSubmitting,
       isTokenExpired,
       isServerLogout,
       signupRoute,
-      // passwordRoute, // TODO: Uncomment this line after fixing password recovery in-app
       error,
+      intl,
+      // passwordRoute, // TODO: Uncomment this line after fixing password recovery in-app
     } = this.props;
 
     return (
@@ -137,8 +136,8 @@ class Login extends Component {
               {intl.formatMessage(messages.serverLogout)}
             </p>
           )}
-          <Input field={form.$('email')} focus />
-          <Input field={form.$('password')} showPasswordToggle />
+          <Input {...form.$('email').bind()} focus />
+          <Input {...form.$('password').bind()} showPasswordToggle />
           {error.code === 'invalid-credentials' && (
             <>
               <p className="error-message center">
@@ -171,12 +170,14 @@ class Login extends Component {
               label={`${intl.formatMessage(messages.submitButtonLabel)} ...`}
               loaded={false}
               disabled
+              onClick={noop}
             />
           ) : (
             <Button
               type="submit"
               className="auth__button"
               label={intl.formatMessage(messages.submitButtonLabel)}
+              onClick={noop}
             />
           )}
         </form>
@@ -202,4 +203,4 @@ class Login extends Component {
   }
 }
 
-export default injectIntl(inject('actions')(observer(Login)));
+export default injectIntl(Login);

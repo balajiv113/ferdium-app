@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { Component, ReactElement } from 'react';
 import { inject, observer } from 'mobx-react';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, WrappedComponentProps } from 'react-intl';
 
 import { FormFields } from '../../@types/mobx-form.types';
 import { StoresProps } from '../../@types/ferdium-components.types';
@@ -111,6 +111,10 @@ const messages = defineMessages({
   searchEngine: {
     id: 'settings.app.form.searchEngine',
     defaultMessage: 'Search engine',
+  },
+  sentry: {
+    id: 'settings.app.form.sentry',
+    defaultMessage: 'Send telemetry data',
   },
   translatorEngine: {
     id: 'settings.app.form.translatorEngine',
@@ -314,10 +318,10 @@ const messages = defineMessages({
   },
 });
 
-interface EditSettingsScreenProps extends StoresProps {
-  intl: any;
-}
+interface EditSettingsScreenProps extends StoresProps, WrappedComponentProps {}
 
+@inject('stores', 'actions')
+@observer
 class EditSettingsScreen extends Component<EditSettingsScreenProps> {
   state = {
     lockedPassword: '',
@@ -366,6 +370,7 @@ class EditSettingsScreen extends Component<EditSettingsScreenProps> {
         searchEngine: settingsData.searchEngine,
         translatorEngine: settingsData.translatorEngine,
         translatorLanguage: settingsData.translatorLanguage,
+        sentry: Boolean(settingsData.sentry),
         hibernateOnStartup: Boolean(settingsData.hibernateOnStartup),
         hibernationStrategy: Number(settingsData.hibernationStrategy),
         wakeUpStrategy: Number(settingsData.wakeUpStrategy),
@@ -631,6 +636,11 @@ class EditSettingsScreen extends Component<EditSettingsScreenProps> {
           value: settings.all.app.translatorLanguage,
           default: DEFAULT_APP_SETTINGS.translatorLanguage,
           options: translatorLanguages,
+        },
+        sentry: {
+          label: intl.formatMessage(messages.sentry),
+          value: settings.all.app.sentry,
+          default: DEFAULT_APP_SETTINGS.sentry,
         },
         hibernateOnStartup: {
           label: intl.formatMessage(messages.hibernateOnStartup),
@@ -962,9 +972,6 @@ class EditSettingsScreen extends Component<EditSettingsScreenProps> {
           }
           isSplitModeEnabled={this.props.stores.settings.app.splitMode}
           isTodosActivated={this.props.stores.todos.isFeatureEnabledByUser}
-          isUsingCustomTodoService={
-            this.props.stores.todos.isUsingCustomTodoService
-          }
           openProcessManager={() => this.openProcessManager()}
           isOnline={app.isOnline}
           serverURL={importExportURL()}
@@ -974,6 +981,4 @@ class EditSettingsScreen extends Component<EditSettingsScreenProps> {
   }
 }
 
-export default injectIntl(
-  inject('stores', 'actions')(observer(EditSettingsScreen)),
-);
+export default injectIntl(EditSettingsScreen);

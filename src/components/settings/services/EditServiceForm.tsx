@@ -1,27 +1,24 @@
-import { Component } from 'react';
-import PropTypes from 'prop-types';
+import { Component, FormEvent, ReactElement } from 'react';
 import { observer } from 'mobx-react';
 import { Link } from 'react-router-dom';
-import { defineMessages, injectIntl } from 'react-intl';
+import { defineMessages, injectIntl, WrappedComponentProps } from 'react-intl';
 import normalizeUrl from 'normalize-url';
-
 import { mdiInformation } from '@mdi/js';
 import Form from '../../../lib/Form';
-import Recipe from '../../../models/Recipe';
-import Service from '../../../models/Service';
 import Tabs from '../../ui/Tabs/Tabs';
 import TabItem from '../../ui/Tabs/TabItem';
 import Input from '../../ui/input/index';
-import Toggle from '../../ui/Toggle';
+import Toggle from '../../ui/toggle';
 import Slider from '../../ui/Slider';
 import Button from '../../ui/button';
-import ImageUpload from '../../ui/ImageUpload';
+import ImageUpload from '../../ui/imageUpload';
 import Select from '../../ui/Select';
-
 import { isMac } from '../../../environment';
 import globalMessages from '../../../i18n/globalMessages';
 import Icon from '../../ui/icon';
 import { H3 } from '../../ui/headline';
+import { IRecipe } from '../../../models/Recipe';
+import Service from '../../../models/Service';
 
 const messages = defineMessages({
   saveService: {
@@ -151,36 +148,34 @@ const messages = defineMessages({
   },
 });
 
-class EditServiceForm extends Component {
-  static propTypes = {
-    recipe: PropTypes.instanceOf(Recipe).isRequired,
-    service(props, propName) {
-      if (props.action === 'edit' && !(props[propName] instanceof Service)) {
-        return new Error(`'${propName}'' is expected to be of type 'Service'
-          when editing a Service`);
-      }
+interface IProps extends WrappedComponentProps {
+  recipe: IRecipe;
+  service: Service | null;
+  action?: string;
+  form: Form;
+  onSubmit: (...args: any[]) => void;
+  onDelete: () => void;
+  openRecipeFile: (recipeFile: string) => void;
+  isSaving: boolean;
+  isDeleting: boolean;
+  isProxyFeatureEnabled: boolean;
+}
 
-      return null;
-    },
-    action: PropTypes.string.isRequired,
-    form: PropTypes.instanceOf(Form).isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
-    openRecipeFile: PropTypes.func.isRequired,
-    isSaving: PropTypes.bool.isRequired,
-    isDeleting: PropTypes.bool.isRequired,
-    isProxyFeatureEnabled: PropTypes.bool.isRequired,
-  };
+interface IState {
+  isValidatingCustomUrl: boolean;
+}
 
-  static defaultProps = {
-    service: {},
-  };
+@observer
+class EditServiceForm extends Component<IProps, IState> {
+  constructor(props: IProps) {
+    super(props);
 
-  state = {
-    isValidatingCustomUrl: false,
-  };
+    this.state = {
+      isValidatingCustomUrl: false,
+    };
+  }
 
-  submit(e) {
+  submit(e: FormEvent): void {
     const { recipe } = this.props;
 
     e.preventDefault();
@@ -191,7 +186,8 @@ class EditServiceForm extends Component {
 
         const { files } = form.$('customIcon');
         if (files) {
-          values.iconFile = files[0];
+          const [iconFile] = files;
+          values.iconFile = iconFile;
         }
 
         if (recipe.validateUrl && values.customUrl) {
@@ -221,20 +217,19 @@ class EditServiceForm extends Component {
     });
   }
 
-  render() {
+  render(): ReactElement {
     const {
       recipe,
-      service,
-      action,
+      service = {} as Service,
+      action = '',
       form,
       isSaving,
       isDeleting,
       onDelete,
       openRecipeFile,
       isProxyFeatureEnabled,
+      intl,
     } = this.props;
-    const { intl } = this.props;
-
     const { isValidatingCustomUrl } = this.state;
 
     const deleteButton = isDeleting ? (
@@ -285,7 +280,8 @@ class EditServiceForm extends Component {
                   name: recipe.name,
                 })
               : intl.formatMessage(messages.editServiceHeadline, {
-                  name: service.name !== '' ? service.name : recipe.name,
+                  name:
+                    service && service.name !== '' ? service.name : recipe.name,
                 })}
           </span>
         </div>
@@ -297,23 +293,29 @@ class EditServiceForm extends Component {
             {(recipe.hasTeamId || recipe.hasCustomUrl) && (
               <Tabs active={activeTabIndex}>
                 {recipe.hasHostedOption && (
-                  <TabItem title={recipe.name}>
+                  <TabItem
+                  // title={recipe.name} // TODO - [TS DEBT] property not used inside TabItem need to check it
+                  >
                     {intl.formatMessage(messages.useHostedService, {
                       name: recipe.name,
                     })}
                   </TabItem>
                 )}
                 {recipe.hasTeamId && (
-                  <TabItem title={intl.formatMessage(messages.tabHosted)}>
+                  <TabItem
+                  // title={intl.formatMessage(messages.tabHosted)} // TODO - [TS DEBT] property not used inside TabItem need to check it
+                  >
                     <Input
-                      field={form.$('team')}
+                      {...form.$('team').bind()}
                       prefix={recipe.urlInputPrefix}
                       suffix={recipe.urlInputSuffix}
                     />
                   </TabItem>
                 )}
                 {recipe.hasCustomUrl && (
-                  <TabItem title={intl.formatMessage(messages.tabOnPremise)}>
+                  <TabItem
+                  // title={intl.formatMessage(messages.tabOnPremise)} // TODO - [TS DEBT] property not used inside TabItem need to check it
+                  >
                     <Input {...form.$('customUrl').bind()} />
                     {form.error === 'url-validation-error' && (
                       <p className="franz-form__error">
@@ -342,22 +344,22 @@ class EditServiceForm extends Component {
               <div className="settings__options">
                 <div className="settings__settings-group">
                   <H3>{intl.formatMessage(messages.headlineNotifications)}</H3>
-                  <Toggle field={form.$('isNotificationEnabled')} />
-                  <Toggle field={form.$('isMuted')} />
+                  <Toggle {...form.$('isNotificationEnabled').bind()} />
+                  <Toggle {...form.$('isMuted').bind()} />
                   <p className="settings__help indented__help">
                     {intl.formatMessage(messages.isMutedInfo)}
                   </p>
-                  <Toggle field={form.$('isMediaBadgeEnabled')} />
+                  <Toggle {...form.$('isMediaBadgeEnabled').bind()} />
                 </div>
 
                 <div className="settings__settings-group">
                   <H3>{intl.formatMessage(messages.headlineBadges)}</H3>
-                  <Toggle field={form.$('isBadgeEnabled')} />
+                  <Toggle {...form.$('isBadgeEnabled').bind()} />
                   {recipe.hasIndirectMessages &&
                     form.$('isBadgeEnabled').value && (
                       <>
                         <Toggle
-                          field={form.$('isIndirectMessageBadgeEnabled')}
+                          {...form.$('isIndirectMessageBadgeEnabled').bind()}
                         />
                         <p className="settings__help indented__help">
                           {intl.formatMessage(messages.indirectMessageInfo)}
@@ -365,19 +367,21 @@ class EditServiceForm extends Component {
                       </>
                     )}
                   {recipe.allowFavoritesDelineationInUnreadCount && (
-                    <Toggle field={form.$('onlyShowFavoritesInUnreadCount')} />
+                    <Toggle
+                      {...form.$('onlyShowFavoritesInUnreadCount').bind()}
+                    />
                   )}
                 </div>
 
                 <div className="settings__settings-group">
                   <H3>{intl.formatMessage(messages.headlineGeneral)}</H3>
-                  <Toggle field={form.$('isEnabled')} />
-                  <Toggle field={form.$('isHibernationEnabled')} />
+                  <Toggle {...form.$('isEnabled').bind()} />
+                  <Toggle {...form.$('isHibernationEnabled').bind()} />
                   <p className="settings__help indented__help">
                     {intl.formatMessage(messages.isHibernationEnabledInfo)}
                   </p>
-                  <Toggle field={form.$('isWakeUpEnabled')} />
-                  <Toggle field={form.$('trapLinkClicks')} />
+                  <Toggle {...form.$('isWakeUpEnabled').bind()} />
+                  <Toggle {...form.$('trapLinkClicks').bind()} />
                   {/* TODO: Need to figure out how to effect this change without a reload of the recipe */}
                   <p className="settings__help indented__help">
                     {intl.formatMessage(messages.serviceReloadRequired)}
@@ -386,7 +390,7 @@ class EditServiceForm extends Component {
 
                 <div className="settings__settings-group">
                   <H3>{intl.formatMessage(messages.headlineAppearance)}</H3>
-                  <Toggle field={form.$('isDarkModeEnabled')} />
+                  <Toggle {...form.$('isDarkModeEnabled').bind()} />
                   {form.$('isDarkModeEnabled').value && (
                     <>
                       <H3>
@@ -399,12 +403,12 @@ class EditServiceForm extends Component {
                       <Slider field={form.$('darkReaderSepia')} />
                     </>
                   )}
-                  <Toggle field={form.$('isProgressbarEnabled')} />
+                  <Toggle {...form.$('isProgressbarEnabled').bind()} />
                 </div>
               </div>
               <div className="service-icon">
                 <ImageUpload
-                  field={form.$('customIcon')}
+                  {...form.$('customIcon').bind()}
                   textDelete={intl.formatMessage(messages.iconDelete)}
                   textUpload={intl.formatMessage(messages.iconUpload)}
                   maxSize={2_097_152}
@@ -429,7 +433,7 @@ class EditServiceForm extends Component {
                   {intl.formatMessage(messages.headlineProxy)}
                   <span className="badge badge--success">beta</span>
                 </H3>
-                <Toggle field={form.$('proxy.isEnabled')} />
+                <Toggle {...form.$('proxy.isEnabled').bind()} />
                 {form.$('proxy.isEnabled').value && (
                   <>
                     <div className="grid">
@@ -533,4 +537,4 @@ class EditServiceForm extends Component {
   }
 }
 
-export default injectIntl(observer(EditServiceForm));
+export default injectIntl(EditServiceForm);

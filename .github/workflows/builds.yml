@@ -127,7 +127,7 @@ jobs:
     name: "windows ${{ github.event.inputs.message }}"
     needs: check_updates
     if: ${{ (needs.check_updates.outputs.should_run != 'false') && (github.event_name != 'workflow_dispatch' || (github.event_name == 'workflow_dispatch' && (contains(github.event.inputs.message, '[Windows]') || (!contains(github.event.inputs.message, '[macOS]') && !contains(github.event.inputs.message, '[Linux]') && !contains(github.event.inputs.message, '[Windows]'))))) }}
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - name: Set env vars
         run: |
@@ -184,9 +184,6 @@ jobs:
       - name: Package recipes
         run: pnpm i && pnpm lint && pnpm reformat-files && pnpm package
         working-directory: ./recipes
-        shell: bash
-      - name: Run linter and tests
-        run: pnpm lint && pnpm test
         shell: bash
       - name: Build Ferdium without publish for any branch not 'nightly' and not 'release'
         if: ${{ env.GIT_BRANCH_NAME != 'nightly' && env.GIT_BRANCH_NAME != 'release' }}

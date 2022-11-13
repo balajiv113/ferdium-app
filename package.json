@@ -214,6 +214,11 @@
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.11.1"
   },
+  "pnpm": {
+    "overrides": {
+      "usocket": "_EXCLUDED_"
+    }
+  },
   "overrides": {
     "usocket": "_EXCLUDED_"
   },

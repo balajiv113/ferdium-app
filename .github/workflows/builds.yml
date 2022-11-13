@@ -193,7 +193,7 @@ jobs:
         if: ${{ env.GIT_BRANCH_NAME != 'nightly' && env.GIT_BRANCH_NAME != 'release' }}
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: pnpm build --publish never
+        run: DEBUG=electron-rebuild pnpm build --publish never
       - name: "Build Ferdium with publish for '${{ env.GIT_BRANCH_NAME }}' branch"
         if: ${{ env.GIT_BRANCH_NAME == 'nightly' || env.GIT_BRANCH_NAME == 'release' }}
         env:

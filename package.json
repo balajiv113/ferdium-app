@@ -216,11 +216,11 @@
   },
   "pnpm": {
     "overrides": {
-      "usocket": "_EXCLUDED_"
+      "usocket": "../_EXCLUDED_"
     }
   },
   "overrides": {
-    "usocket": "_EXCLUDED_"
+    "usocket": "../_EXCLUDED_"
   },
   "optionalDependencies": {
     "macos-notification-state": "github:ferdium/macos-notification-state#394f33c2546960391bde2519aa30180dd3506492",

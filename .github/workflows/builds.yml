@@ -158,21 +158,21 @@ jobs:
         env:
           cache-name: cache-electron-modules
         with:
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('./package-lock.json') }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('.\\package-lock.json') }}
           path: ${{ env.ELECTRON_CACHE }}
       - name: Cache electron-builder modules
         uses: actions/cache@v3
         env:
           cache-name: cache-electron-builder-modules
         with:
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('./package-lock.json') }}
+          key: ${{ runner.os }}-${{ env.cache-name }}-${{ secrets.CACHE_VERSION }}-${{ hashFiles('.\\package-lock.json') }}
           path: ${{ env.ELECTRON_BUILDER_CACHE }}
       - name: Use Node.js specified in the '.nvmrc' file
         uses: actions/setup-node@v3
         with:
           node-version-file: ".nvmrc"
       - name: Install pnpm
-        run: npm i -gf "pnpm@$(node -p 'require(\"./package.json\").engines.pnpm')" && pnpm -v
+        run: npm i -gf "pnpm@$(node -p 'require(\".\\package.json\").engines.pnpm')" && pnpm -v
       - name: Install node dependencies
         uses: nick-invision/retry@v2.4.0
         with:
@@ -182,7 +182,7 @@ jobs:
           retry_on: error
       - name: Package recipes
         run: pnpm i && pnpm lint && pnpm reformat-files && pnpm package
-        working-directory: ./recipes
+        working-directory: .\\recipes
       - name: Debug Pnpm
         run: pnpm config ls -l
       - name: Debug Shell

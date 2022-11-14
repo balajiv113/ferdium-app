@@ -177,7 +177,6 @@ jobs:
         shell: bash
       - name: Install pnpm
         run: npm i -gf "pnpm@$(node -p 'require(\"./package.json\").engines.pnpm')" && pnpm -v
-        shell: bash
       - name: Install node dependencies
         uses: nick-invision/retry@v2.4.0
         with:

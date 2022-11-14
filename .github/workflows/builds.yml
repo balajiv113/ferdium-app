@@ -186,6 +186,12 @@ jobs:
         run: pnpm i && pnpm lint && pnpm reformat-files && pnpm package
         working-directory: ./recipes
         shell: bash
+      - name: Debug Pnpm
+        run: pnpm config ls -l
+        shell: bash
+      - name: Debug Shell
+        run: printenv
+        shell: bash
       - name: Build Ferdium without publish for any branch not 'nightly' and not 'release'
         if: ${{ env.GIT_BRANCH_NAME != 'nightly' && env.GIT_BRANCH_NAME != 'release' }}
         env:

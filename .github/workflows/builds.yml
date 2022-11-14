@@ -132,6 +132,7 @@ jobs:
       - name: Set env vars
         run: |
           echo "HOME=$USERPROFILE" >> $GITHUB_ENV
+          echo "GYP_MSVS_VERSION=2019" >> $GITHUB_ENV
           echo "NPM_CACHE=$USERPROFILE/.npm" >> $GITHUB_ENV
           echo "PNPM_CACHE=$USERPROFILE/.pnpm-store" >> $GITHUB_ENV
           echo "ELECTRON_CACHE=$USERPROFILE/.cache/electron" >> $GITHUB_ENV
